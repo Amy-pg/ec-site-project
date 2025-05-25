@@ -37,12 +37,3 @@ jobs:
 
             ### 制約事項
             - 
-
-      - name: Create Pull Request
-        if: github.event_name == 'push'
-        uses: peter-evans/create-pull-request@v5
-        with:
-          commit-message: "docs: 要件定義の更新"
-          title: "要件定義の更新"
-          body: "Claudeによる要件定義の自動更新"
-          branch: update-requirements
