@@ -16,7 +16,7 @@ jobs:
         uses: actions/checkout@v4  # 最新バージョンに更新
 
       - name: Run Claude Code
-        uses: anthropics/claude-code-action@v1
+        uses: anthropics/claude-code-action@main
         with:
           api-key: ${{ secrets.ANTHROPIC_API_KEY }}
           input-file: "meeting-notes.md"
