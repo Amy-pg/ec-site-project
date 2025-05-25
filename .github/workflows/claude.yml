@@ -37,12 +37,9 @@ jobs:
             ### 制約事項
             - 
 
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v5
-        with:
-          commit-message: "docs: 要件定義の更新"
-          title: "要件定義の更新"
-          body: "Claudeによる要件定義の自動更新"
-          branch: update-requirements
-          base: main
-          path: requirements.md
+      - name: Commit and push if changed
+        run: |
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email 'actions@github.com'
+          git add requirements.md
+          git diff --quiet && git diff --staged --quiet || (git commit -m "docs: 要件定義を更新" && git push)
