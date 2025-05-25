@@ -1,0 +1,34 @@
+name: Claude Code Workflow
+on:
+  push:
+    branches: [ main ]  # mainブランチにプッシュしたときに動作
+
+jobs:
+  generate-requirements:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3  # リポジトリの内容を取得
+
+      - name: Run Claude Code
+        uses: anthropics/claude-code-action@v1  # Claude Codeのアクションを呼び出し
+        with:
+          api-key: ${{ secrets.ANTHROPIC_API_KEY }}  # SecretsからAPIキーを取得
+          input-file: "meeting-notes.md"  # 入力ファイル（議事録）
+          output-file: "requirements.md"  # 出力ファイル（要件定義ドキュメント）
+          prompt: |
+            以下の議事録を基に要件定義ドキュメントを作成してください。
+            以下のテンプレートに従い、箇条書きで整理してください。
+
+            ## 要件定義
+            ### プロジェクトの目的
+            - 
+
+            ### 機能要件
+            - 
+
+            ### 非機能要件
+            - 
+
+            ### 制約事項
+            - 
