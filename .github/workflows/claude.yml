@@ -1,21 +1,26 @@
 name: Claude Code Workflow
 on:
   push:
-    branches: [ main ]  # mainブランチにプッシュしたときに動作
+    branches: [ main, develop ]  # developブランチも追加
+  pull_request:
+    types: [opened, synchronize]  # PRの作成と更新時にも実行
 
 jobs:
   generate-requirements:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3  # リポジトリの内容を取得
+        uses: actions/checkout@v4  # 最新バージョンに更新
 
       - name: Run Claude Code
-        uses: anthropics/claude-code-action@v1  # Claude Codeのアクションを呼び出し
+        uses: anthropics/claude-code-action@v1
         with:
-          api-key: ${{ secrets.ANTHROPIC_API_KEY }}  # SecretsからAPIキーを取得
-          input-file: "meeting-notes.md"  # 入力ファイル（議事録）
-          output-file: "requirements.md"  # 出力ファイル（要件定義ドキュメント）
+          api-key: ${{ secrets.ANTHROPIC_API_KEY }}
+          input-file: "meeting-notes.md"
+          output-file: "requirements.md"
           prompt: |
             以下の議事録を基に要件定義ドキュメントを作成してください。
             以下のテンプレートに従い、箇条書きで整理してください。
@@ -32,3 +37,12 @@ jobs:
 
             ### 制約事項
             - 
+
+      - name: Create Pull Request
+        if: github.event_name == 'push'
+        uses: peter-evans/create-pull-request@v5
+        with:
+          commit-message: "docs: 要件定義の更新"
+          title: "要件定義の更新"
+          body: "Claudeによる要件定義の自動更新"
+          branch: update-requirements
