@@ -10,32 +10,61 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      id-token: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Run Claude Code
-        uses: anthropics/claude-code-action@main
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          direct_prompt: |
-            以下の議事録を基に要件定義ドキュメントを作成してください。
-            以下のテンプレートに従い、箇条書きで整理してください。
+          python-version: '3.11'
 
-            ## 要件定義
-            ### プロジェクトの目的
-            - 
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install anthropic
 
-            ### 機能要件
-            - 
+      - name: Generate requirements
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          python - <<EOF
+          import anthropic
+          import os
 
-            ### 非機能要件
-            - 
+          client = anthropic.Anthropic(api_key=os.environ['ANTHROPIC_API_KEY'])
 
-            ### 制約事項
-            - 
+          with open('meeting-notes.md', 'r') as f:
+              meeting_notes = f.read()
+
+          prompt = f"""以下の議事録を基に要件定義ドキュメントを作成してください。
+          以下のテンプレートに従い、箇条書きで整理してください。
+
+          {meeting_notes}
+
+          ## 要件定義
+          ### プロジェクトの目的
+          - 
+
+          ### 機能要件
+          - 
+
+          ### 非機能要件
+          - 
+
+          ### 制約事項
+          - 
+          """
+
+          response = client.messages.create(
+              model="claude-3-sonnet-20240229",
+              max_tokens=4000,
+              messages=[{"role": "user", "content": prompt}]
+          )
+
+          with open('requirements.md', 'w') as f:
+              f.write(response.content[0].text)
+          EOF
 
       - name: Commit and push if changed
         run: |
