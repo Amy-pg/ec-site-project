@@ -11,6 +11,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      id-token: write  # OIDCトークン用の権限を追加
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4  # 最新バージョンに更新
@@ -18,10 +19,9 @@ jobs:
       - name: Run Claude Code
         uses: anthropics/claude-code-action@main
         with:
-          api-key: ${{ secrets.ANTHROPIC_API_KEY }}
-          input-file: "meeting-notes.md"
-          output-file: "requirements.md"
-          prompt: |
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          direct_prompt: |
             以下の議事録を基に要件定義ドキュメントを作成してください。
             以下のテンプレートに従い、箇条書きで整理してください。
 
