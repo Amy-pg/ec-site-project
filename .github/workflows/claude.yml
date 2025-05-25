@@ -1,15 +1,15 @@
 name: Claude Code Workflow
 on:
-  issue_comment:
-    types: [created, edited]
+  push:
+    branches: [ main ]
+    paths:
+      - 'meeting-notes.md'
 
 jobs:
   generate-requirements:
-    if: contains(github.event.issue.body, '@claude') || contains(github.event.comment.body, '@claude')
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      pull-requests: write
       id-token: write
     steps:
       - name: Checkout repository
@@ -20,7 +20,6 @@ jobs:
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          trigger_phrase: "@claude"
           direct_prompt: |
             以下の議事録を基に要件定義ドキュメントを作成してください。
             以下のテンプレートに従い、箇条書きで整理してください。
@@ -37,3 +36,13 @@ jobs:
 
             ### 制約事項
             - 
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          commit-message: "docs: 要件定義の更新"
+          title: "要件定義の更新"
+          body: "Claudeによる要件定義の自動更新"
+          branch: update-requirements
+          base: main
+          path: requirements.md
