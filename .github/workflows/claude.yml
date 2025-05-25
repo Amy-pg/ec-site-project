@@ -1,26 +1,26 @@
 name: Claude Code Workflow
 on:
-  push:
-    branches: [ main, develop ]  # developブランチも追加
-  pull_request:
-    types: [opened, synchronize]  # PRの作成と更新時にも実行
+  issue_comment:
+    types: [created, edited]
 
 jobs:
   generate-requirements:
+    if: contains(github.event.issue.body, '@claude') || contains(github.event.comment.body, '@claude')
     runs-on: ubuntu-latest
     permissions:
       contents: write
       pull-requests: write
-      id-token: write  # OIDCトークン用の権限を追加
+      id-token: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4  # 最新バージョンに更新
+        uses: actions/checkout@v4
 
       - name: Run Claude Code
         uses: anthropics/claude-code-action@main
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          trigger_phrase: "@claude"
           direct_prompt: |
             以下の議事録を基に要件定義ドキュメントを作成してください。
             以下のテンプレートに従い、箇条書きで整理してください。
